@@ -1,0 +1,71 @@
+“Business Rules” del trabajo.
+
+Título autogenerado
+
+El título del producto se genera automáticamente como concatenación del modelo y del título del diseño (p. ej. "{NombreModelo} - {TituloDiseno}"). El campo título no es editable en el flujo de creación desde diseño.
+
+Descripción obligatoria
+
+La descripción del producto es obligatoria para poder guardar el producto.
+
+Mínimo de tags para un diseño
+
+Un diseño debe tener al menos 3 tags para considerarse válido y poder usarse para crear un producto (validación en CU1.1/CU1.2).
+
+Validación de imagen (regla conceptual)
+
+Antes de usar una imagen, el sistema valida formato y tamaño (CU-R1). Los thresholds concretos se dejan a la implementación (pero la validación es obligatoria).
+
+Generación de miniaturas
+
+Toda imagen que se use en listados debe tener una miniatura generada (CU-R2). La miniatura se asocia a la Imagen del producto.
+
+Cálculo de precio y comisión
+
+ComisionPesos = CostoBase × (Comision% / 100)
+
+PrecioFinal = CostoBase + ComisionPesos
+
+La comisión por defecto se limita al rango [0%, 50%] (ajustable según política). Si el valor ingresado queda fuera de rango se ajusta al límite.
+
+Condiciones para habilitar Guardar Producto
+
+Se requiere: Modelo seleccionado, Descripción no vacía, Comisión dentro del rango válido. Además, la vista previa (imagen generada) debe existir para permitir publicar; para crear el producto no es estrictamente obligatorio (puede aceptarse creación con pending_preview).
+
+Soft delete (baja lógica)
+
+Todos los borrados son lógicos salvo que la política indique lo contrario. (BajaLogica = true para Diseno, Modelo, Producto).
+
+Publicación y sincronización
+
+Producto.Publicado y Publicacion.Estado se mantienen sincronizados:
+
+Producto.Publicado = true ⇒ Publicacion.Estado = Visible
+
+Producto.Publicado = false ⇒ Publicacion.Estado = Oculto
+
+CU-R11 garantiza la consistencia.
+
+No eliminación de Publicación al despublicar
+
+Despublicar un producto no elimina la Publicación ni sus comentarios, favoritos o historial; solo cambia Publicacion.Estado a Oculto.
+
+La Publicación refleja la última versión del Producto
+
+Si el Producto es editado, la Publicación asociada muestra la versión actualizada (no se crean versiones históricas en esta iteración).
+
+Creación de Publicación al crear Producto
+
+Al crear un producto se debe crear (o asegurar la existencia de) una Publicación asociada en estado Oculto (inicialización por CU-R11).
+
+No eliminar productos publicados
+
+No se permite eliminar un producto mientras esté Publicado = true. Primero debe despublicarse (CU-R11), luego podrá eliminarse (CU2.4).
+
+Permisos
+
+Solo el propietario del Producto o un Administrador puede publicar/despublicar, editar o eliminar un producto.
+
+Auditoría mínima
+
+Operaciones críticas (crear producto, publicar/despublicar, eliminar) deben registrar quién y cuándo (usuario y timestamp)
